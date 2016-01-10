@@ -1,0 +1,18 @@
+module.exports = {
+  "00": require("./schedule-00.json"),
+  "01": require("./schedule-01.json"),
+  "02": require("./schedule-02.json"),
+  "03": require("./schedule-03.json"),
+  "04": require("./schedule-04.json"),
+  "05": require("./schedule-05.json"),
+  "06": require("./schedule-06.json"),
+  "07": require("./schedule-07.json"),
+  "08": require("./schedule-08.json"),
+  "09": require("./schedule-09.json"),
+  "10": require("./schedule-10.json"),
+  "11": require("./schedule-11.json"),
+  "12": require("./schedule-12.json"),
+  "13": require("./schedule-13.json"),
+  "14": require("./schedule-14.json"),
+  "15": require("./schedule-15.json"),
+};
