@@ -11,7 +11,8 @@ var async = require("async");
 var fs = require("fs");
 var path = require("path");
 var _ = require("lodash");
-var nba = require("nba");
+
+var nba = require("../nba");
 
 var responses = [];
 var season = process.argv[2];
@@ -19,23 +20,13 @@ var season = process.argv[2];
 // this should be the real number of games...
 var COUNT = 30 * 82 * .5;
 
-var ids = [];
-
 function pad (n) {
   var s = String(n);
   while (s.length < 4) s = "0" + s;
   return s;
 }
 
-var keys = [
-  "gameDateEst",
-  "gameId",
-  "gamecode",
-  "homeTeamId",
-  "visitorTeamId",
-  "season",
-];
-
+var ids = [];
 var i = 0;
 while (++i <= COUNT) ids.push("002" + season + "0" + pad(i));
 
@@ -48,11 +39,18 @@ async.eachLimit(ids, 100,
       }
 
       console.log("finished", id);
-      responses.push(_.pick(data.gameSummary[0], keys));
+      responses.push(_.pick(data.gameSummary[0], [
+        "gameDateEst",
+        "gameId",
+        "gamecode",
+        "homeTeamId",
+        "visitorTeamId",
+        "season",
+      ]));
       next();
     });
   },
-  function (err) {
+  function () {
     responses = _.sortBy(responses, "gameId");
     fs.writeFileSync(
       path.join(__dirname, "schedule-" + season +".json"),
