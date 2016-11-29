@@ -30,23 +30,40 @@ var ids = [];
 var i = 0;
 while (++i <= COUNT) ids.push("002" + season + "0" + pad(i));
 
+ // 'GameSummary'
+ // 'OtherStats'
+ // 'Officials'
+ // 'InactivePlayers'
+ // 'GameInfo'
+ // 'LineScore'
+ // 'LastMeeting'
+ // 'SeasonSeries'
+ // 'AvailableVideo'
+
 async.eachLimit(ids, 100,
   function (id, next) {
-    nba.stats.boxScoreScoring({gameId: id}, function (err, data) {
-      if (err) {
-        console.log("errored on", id, err.message);
-        return next();
-      }
-
+    console.log("start", id);
+    nba.stats.boxScoreSummary({GameID: id}).then(function (data) {
       console.log("finished", id);
-      responses.push(_.pick(data.gameSummary[0], [
-        "gameDateEst",
-        "gameId",
-        "gamecode",
-        "homeTeamId",
-        "visitorTeamId",
-        "season",
-      ]));
+
+      const out = _(data.resultSets)
+        .map(rs => ({
+          name: rs.name,
+          data: collectify(rs.headers, rs.rowSet),
+        }))
+        .indexBy("name")
+        .value();
+
+      const x = out.GameSummary.data[0];
+
+      responses.push({
+        "gameDateEst": x.GAME_DATE_EST,
+        "gameId": x.GAME_ID,
+        "gamecode": x.GAMECODE,
+        "homeTeamId": x.HOME_TEAM_ID,
+        "visitorTeamId": x.VISITOR_TEAM_ID,
+        "season": 2016,
+      });
       next();
     });
   },
@@ -59,4 +76,19 @@ async.eachLimit(ids, 100,
   });
 
 
+function collectify (headers, rows) {
+  return rows.map(function (row) {
+    return row.reduce(function (cell, val, i) {
+      cell[headers[i]] = val;
+      return cell;
+    }, {});
+  });
+};
 
+process.on("unhandledRejection", err => {
+  console.log("uh oh....");
+
+  console.log(responses[responses.length - 1]);
+
+  throw err;
+});
